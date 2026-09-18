@@ -31,3 +31,6 @@ out/
 /dist/
 /nbdist/
 /.nb-gradle/
+
+### 本地联调密钥 ###
+.local/

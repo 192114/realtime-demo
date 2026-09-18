@@ -57,3 +57,31 @@ management:
   endpoint:
     health:
       show-details: when_authorized
+
+realtime:
+  mqtt:
+    enabled: ${REALTIME_MQTT_ENABLED:false}
+    emqx-version: ${REALTIME_EMQX_VERSION:}
+    server-uri: ${REALTIME_MQTT_SERVER_URI:}
+    client-websocket-url: ${REALTIME_MQTT_CLIENT_WEBSOCKET_URL:}
+    service-client-id: ${REALTIME_MQTT_SERVICE_CLIENT_ID:}
+    service-username: ${REALTIME_MQTT_SERVICE_USERNAME:}
+    service-password: ${REALTIME_MQTT_SERVICE_PASSWORD:}
+    internal-callback-secret: ${REALTIME_INTERNAL_CALLBACK_SECRET:}
+    credential-ttl-seconds: ${REALTIME_MQTT_CREDENTIAL_TTL_SECONDS:300}
+    service-session-ttl-seconds: ${REALTIME_MQTT_SERVICE_SESSION_TTL_SECONDS:3600}
+    connect-timeout-seconds: ${REALTIME_MQTT_CONNECT_TIMEOUT_SECONDS:5}
+    publish-timeout-seconds: ${REALTIME_MQTT_PUBLISH_TIMEOUT_SECONDS:5}
+    keep-alive-seconds: ${REALTIME_MQTT_KEEP_ALIVE_SECONDS:30}
+    max-reconnect-delay-millis: ${REALTIME_MQTT_MAX_RECONNECT_DELAY_MILLIS:30000}
+
+  livekit:
+    enabled: ${REALTIME_LIVEKIT_ENABLED:false}
+    url: ${REALTIME_LIVEKIT_URL:}
+    api-key: ${REALTIME_LIVEKIT_API_KEY:}
+    api-secret: ${REALTIME_LIVEKIT_API_SECRET:}
+    token-ttl-seconds: ${REALTIME_LIVEKIT_TOKEN_TTL_SECONDS:600}
+    call-timeout-seconds: ${REALTIME_LIVEKIT_CALL_TIMEOUT_SECONDS:60}
+    timeout-sweep-millis: ${REALTIME_LIVEKIT_TIMEOUT_SWEEP_MILLIS:5000}
+    timeout-sweep-initial-millis: ${REALTIME_LIVEKIT_TIMEOUT_SWEEP_INITIAL_MILLIS:8000}
+    timeout-batch-size: ${REALTIME_LIVEKIT_TIMEOUT_BATCH_SIZE:100}

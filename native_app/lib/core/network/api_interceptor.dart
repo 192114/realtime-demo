@@ -11,11 +11,10 @@ class ApiInterceptor extends Interceptor {
   final Logger _logger;
   final Dio _dio;
 
-  /// 刷新 Token 的锁，防止并发刷新
-  bool _isRefreshing = false;
-
-  /// 等待刷新的请求队列
-  final List<void Function()> _pendingRequests = [];
+  Future<String?>? _refreshing;
+  int? _refreshEpoch;
+  static const sessionEpochKey = 'sessionEpoch';
+  static const _retried = 'authRetried';
 
   ApiInterceptor({
     required this._tokenManager,
@@ -29,6 +28,11 @@ class ApiInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    options.extra.putIfAbsent(sessionEpochKey, () => _tokenManager.sessionEpoch);
+    if (options.extra[sessionEpochKey] != _tokenManager.sessionEpoch) {
+      handler.reject(DioException(requestOptions: options, type: DioExceptionType.cancel));
+      return;
+    }
     // 内部请求（如刷新 Token）跳过 Authorization 自动注入
     if (options.extra[_kSkipAuth] != true) {
       final authHeader = _tokenManager.authorizationHeader;
@@ -49,64 +53,46 @@ class ApiInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    // 处理 401 未授权
-    if (err.response?.statusCode == 401) {
-      _logger.w('Unauthorized: ${err.requestOptions.uri}');
-
-      // 尝试刷新 Token
-      if (_tokenManager.hasRefreshToken) {
-        if (_isRefreshing) {
-          // 正在刷新，加入等待队列
-          _pendingRequests.add(() => _retryRequest(err, handler));
-          return;
+    final options = err.requestOptions;
+    final epoch = options.extra[sessionEpochKey];
+    final internal = options.extra[_kSkipAuth] == true ||
+        options.path == '/app/auth/refresh' ||
+        options.path.startsWith('/app/auth/login');
+    if (err.response?.statusCode == 401 && !internal &&
+        epoch == _tokenManager.sessionEpoch && options.extra[_retried] != true &&
+        _tokenManager.hasRefreshToken) {
+      // 迟到的旧令牌 401 直接使用已刷新的令牌，不发起第二轮刷新。
+      String? failure;
+      if (options.headers['Authorization'] == _tokenManager.authorizationHeader) {
+        if (_refreshing == null || _refreshEpoch != epoch) {
+          _refreshEpoch = epoch as int;
+          final future = _refreshToken();
+          _refreshing = future;
+          future.then((_) {
+            if (identical(_refreshing, future)) _refreshing = null;
+          });
         }
-
-        _isRefreshing = true;
-
-        try {
-          // 调用刷新 Token 接口；返回 null 表示成功，非空为失败原因
-          final failureMessage = await _refreshToken();
-
-          if (failureMessage == null) {
-            // 刷新成功，重试原请求
-            await _retryRequest(err, handler);
-
-            // 处理等待队列中的请求
-            for (final callback in _pendingRequests) {
-              callback();
-            }
-          } else {
-            // 刷新失败，清除 Token
-            await _tokenManager.clearTokens();
-            handler.reject(
-              DioException(
-                requestOptions: err.requestOptions,
-                error: ApiException(
-                  code: 401,
-                  type: ApiExceptionType.unauthorized,
-                  message: failureMessage,
-                ),
-              ),
-            );
-          }
-        } catch (e) {
-          await _tokenManager.clearTokens();
-          handler.reject(
-            DioException(
-              requestOptions: err.requestOptions,
-              error: const ApiException(
-                code: 401,
-                type: ApiExceptionType.unauthorized,
-                message: 'Token 刷新失败',
-              ),
-            ),
-          );
-        } finally {
-          _isRefreshing = false;
-          _pendingRequests.clear();
-        }
+        failure = await _refreshing!;
+      }
+      if (epoch != _tokenManager.sessionEpoch || options.cancelToken?.isCancelled == true) {
+        handler.reject(DioException(requestOptions: options, type: DioExceptionType.cancel));
         return;
       }
+      if (failure == null) {
+        options.extra[_retried] = true;
+        await _retryRequest(err, handler);
+        return;
+      }
+      // 每个等待者都会结束；清理失败也不能让 Dio handler 悬挂。
+      try {
+        await _tokenManager.clearTokens();
+      } catch (_) {
+        // 内存中的认证状态已同步清除。
+      }
+      handler.reject(DioException(requestOptions: options, error: ApiException(
+        code: 401, type: ApiExceptionType.unauthorized, message: failure,
+      )));
+      return;
     }
 
     // 其他错误，转换为 ApiException
@@ -125,6 +111,7 @@ class ApiInterceptor extends Interceptor {
   /// （优先透传后端 `msg`，如「刷新令牌无效或已过期」）。
   Future<String?> _refreshToken() async {
     try {
+      final epoch = _tokenManager.sessionEpoch;
       final refreshToken = _tokenManager.refreshToken;
       if (refreshToken == null) return '登录已过期，请重新登录';
 
@@ -143,10 +130,11 @@ class ApiInterceptor extends Interceptor {
           final data = body['data'] as Map<String, dynamic>?;
           final newAccessToken = data?['accessToken'] as String?;
           final newRefreshToken = data?['refreshToken'] as String?;
-          if (newAccessToken != null) {
+          if (newAccessToken != null && epoch == _tokenManager.sessionEpoch) {
             await _tokenManager.saveTokens(
               accessToken: newAccessToken,
               refreshToken: newRefreshToken ?? refreshToken,
+              isRefresh: true,
             );
             return null;
           }
@@ -157,7 +145,7 @@ class ApiInterceptor extends Interceptor {
       }
       return '登录已过期，请重新登录';
     } catch (e) {
-      _logger.e('Refresh token failed: $e');
+      _logger.w('刷新令牌失败');
       return 'Token 刷新失败';
     }
   }

@@ -5,6 +5,13 @@ import 'package:native_app/features/auth/view/login_page.dart';
 import 'package:native_app/features/auth/view/register_page.dart';
 import 'package:native_app/features/auth/view/reset_password_page.dart';
 import 'package:native_app/features/auth/view/resubmit_page.dart';
+import 'package:native_app/features/call/models/call_models.dart';
+import 'package:native_app/features/call/models/call_route_args.dart';
+import 'package:native_app/features/call/view/active_call_page.dart';
+import 'package:native_app/features/call/view/incoming_call_page.dart';
+import 'package:native_app/features/call/view/outgoing_call_page.dart';
+import 'package:native_app/features/chat/view/chat_detail_page.dart';
+import 'package:native_app/features/chat/view/chat_list_page.dart';
 import 'package:native_app/features/user/view/change_password_page.dart';
 import 'package:native_app/features/user/view/profile_page.dart';
 import 'package:native_app/shared/widgets/message/message.dart';
@@ -41,6 +48,21 @@ class RoutePaths {
 
   /// 修改密码页
   static const String changePassword = '/profile/change-password';
+
+  /// 会话列表页
+  static const String chat = '/chat';
+
+  /// 聊天详情页
+  static const String chatDetail = '/chat/:conversationId';
+
+  /// 呼出页（等待对方接听）
+  static const String callOutgoing = '/call/outgoing';
+
+  /// 来电页（接听或拒绝）
+  static const String callIncoming = '/call/incoming';
+
+  /// 通话页（LiveKit 音视频）
+  static const String callActive = '/call/active';
 
   /// 404 页面
   static const String notFound = '/404';
@@ -150,6 +172,53 @@ class AppRouter {
         GoRoute(
           path: RoutePaths.changePassword,
           builder: (context, state) => const ChangePasswordPage(),
+        ),
+
+        // 会话列表页
+        GoRoute(
+          path: RoutePaths.chat,
+          builder: (context, state) => const ChatListPage(),
+        ),
+
+        // 聊天详情页
+        GoRoute(
+          path: RoutePaths.chatDetail,
+          builder: (context, state) => ChatDetailPage(
+            conversationId: state.pathParameters['conversationId'] ?? '',
+          ),
+        ),
+
+        // 呼出页：路由 extra 必须是发起响应中的通话状态
+        GoRoute(
+          path: RoutePaths.callOutgoing,
+          builder: (context, state) {
+            final extra = state.extra;
+            return extra is CallSession
+                ? OutgoingCallPage(call: extra)
+                : const NotFoundPage();
+          },
+        ),
+
+        // 来电页：路由 extra 必须是来电事件中的通话状态
+        GoRoute(
+          path: RoutePaths.callIncoming,
+          builder: (context, state) {
+            final extra = state.extra;
+            return extra is CallSession
+                ? IncomingCallPage(call: extra)
+                : const NotFoundPage();
+          },
+        ),
+
+        // 通话页：路由 extra 必须携带通话状态与连接凭证
+        GoRoute(
+          path: RoutePaths.callActive,
+          builder: (context, state) {
+            final extra = state.extra;
+            return extra is CallRouteArgs
+                ? ActiveCallPage(args: extra)
+                : const NotFoundPage();
+          },
         ),
 
         // 欢迎页 (免登录)

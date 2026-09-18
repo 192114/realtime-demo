@@ -161,6 +161,12 @@ class ProfilePage extends ConsumerWidget {
           ),
           const Divider(),
           ListTile(
+            leading: const Icon(Icons.chat_bubble_outline),
+            title: const Text('聊天'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/chat'),
+          ),
+          ListTile(
             leading: const Icon(Icons.lock),
             title: const Text('修改密码'),
             trailing: const Icon(Icons.chevron_right),

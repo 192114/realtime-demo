@@ -26,6 +26,21 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- 开发环境允许本地明文连接（http/ws 后端与 EMQX）；不影响生产 ATS -->
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<!-- 语音通话需要麦克风 -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>通话时需要使用麦克风，以便对方听到你的声音</string>
+	<!-- 视频通话需要相机 -->
+	<key>NSCameraUsageDescription</key>
+	<string>视频通话时需要使用相机，以便对方看到你的画面</string>
+	<!-- WebRTC 本地网络候选探测（局域网直连优化） -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>通话时会通过本地网络建立更稳定的连接</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -1,4 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 实时聊天与 API 访问需要网络权限 -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- WebRTC 媒体传输需要网络状态监听 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- 语音通话需要麦克风 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- 音频路由（听筒/扬声器切换） -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <!-- 视频通话需要相机 -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- Android 12+ 连接蓝牙耳机 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
     <application
         android:label="native_app"
         android:name="${applicationName}"

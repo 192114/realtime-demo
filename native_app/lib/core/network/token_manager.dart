@@ -21,6 +21,20 @@ class TokenManager {
 
   String? _accessToken;
   String? _refreshToken;
+  int _sessionEpoch = 0;
+  final Set<void Function()> _sessionListeners = {};
+
+  /// 登录/退出改变代际；刷新令牌不会改变账号会话。
+  int get sessionEpoch => _sessionEpoch;
+  void addSessionListener(void Function() listener) => _sessionListeners.add(listener);
+  void removeSessionListener(void Function() listener) => _sessionListeners.remove(listener);
+
+  void _sessionChanged() {
+    _sessionEpoch++;
+    for (final listener in _sessionListeners.toList()) {
+      listener();
+    }
+  }
 
   /// 获取 Access Token
   String? get accessToken => _accessToken;
@@ -45,9 +59,11 @@ class TokenManager {
   Future<void> saveTokens({
     required String accessToken,
     String? refreshToken,
+    bool isRefresh = false,
   }) async {
     _accessToken = accessToken;
     _refreshToken = refreshToken;
+    if (!isRefresh) _sessionChanged();
 
     await _secureStorage.write(
       key: TokenKeys.accessToken,
@@ -77,6 +93,8 @@ class TokenManager {
   Future<void> clearTokens() async {
     _accessToken = null;
     _refreshToken = null;
+    _sessionChanged();
+    onAuthStateChanged?.call();
 
     await _secureStorage.delete(key: TokenKeys.accessToken);
     await _secureStorage.delete(key: TokenKeys.refreshToken);

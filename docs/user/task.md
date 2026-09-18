@@ -6,24 +6,24 @@
 
 ### 阶段一：数据层
 
-- [ ] **Task B1: 修改 User 实体**
+- [x] **Task B1: 修改 User 实体**
   - 文件: `backend/src/main/java/com/shadow/backend/user/entity/User.java`
   - 变更: 新增 `phone`（String）、`avatar`（String）字段；`@TableName` 从 `sys_user` 改为 `app_user`
   - 依赖: 无
   - 参考: domain.md 中的 User 实体定义
 
-- [ ] **Task B2: 创建 SmsLog 实体**
+- [x] **Task B2: 创建 SmsLog 实体**
   - 文件: `backend/src/main/java/com/shadow/backend/auth/entity/SmsLog.java`
   - 内容: 短信验证码日志实体，包含 phone、scene、code、status、sendTime、verifiedTime 等字段
   - 依赖: 无
   - 参考: domain.md 中的 SmsLog 实体定义
 
-- [ ] **Task B3: 创建 SmsLogMapper**
+- [x] **Task B3: 创建 SmsLogMapper**
   - 文件: `backend/src/main/java/com/shadow/backend/auth/mapper/SmsLogMapper.java`
   - 内容: 继承 `BaseMapper<SmsLog>`
   - 依赖: B2
 
-- [ ] **Task B4: 更新数据库 Schema**
+- [x] **Task B4: 更新数据库 Schema**
   - 文件: `backend/src/main/resources/sql/schema.sql`
   - 变更:
     - app_user 表: 将 `sys_user` 重命名为 `app_user`，新增 `phone`（VARCHAR(20) NOT NULL UNIQUE）、`avatar`（VARCHAR(255)）字段，修改 `username` 为可空
@@ -32,19 +32,19 @@
 
 ### 阶段二：常量与错误码
 
-- [ ] **Task B5: 创建 SmsScene 枚举**
+- [x] **Task B5: 创建 SmsScene 枚举**
   - 文件: `backend/src/main/java/com/shadow/backend/auth/constant/SmsScene.java`
   - 内容: 枚举值 LOGIN / REGISTER / RESET_PASSWORD，含 `fromName(String)` 静态方法
   - 依赖: 无
   - 参考: domain.md 中的 SmsScene 枚举定义
 
-- [ ] **Task B6: 创建 AuthResultCode 枚举**
+- [x] **Task B6: 创建 AuthResultCode 枚举**
   - 文件: `backend/src/main/java/com/shadow/backend/auth/response/AuthResultCode.java`
   - 内容: 实现 IResultCode 接口，包含 10010-10016 错误码
   - 依赖: 无
   - 参考: domain.md 中的 AuthResultCode 枚举定义
 
-- [ ] **Task B7: 修改 UserResultCode 枚举**
+- [x] **Task B7: 修改 UserResultCode 枚举**
   - 文件: `backend/src/main/java/com/shadow/backend/user/response/UserResultCode.java`
   - 变更: 修改 LOGIN_FAILED 描述为「手机号或密码错误」；新增 OLD_PASSWORD_INCORRECT(10005)
   - 依赖: 无
@@ -52,7 +52,7 @@
 
 ### 阶段三：DTO 与 VO
 
-- [ ] **Task B8: 创建 Auth DTO**
+- [x] **Task B8: 创建 Auth DTO**
   - 文件:
     - `backend/src/main/java/com/shadow/backend/auth/dto/SendCodeRequest.java` — phone, scene
     - `backend/src/main/java/com/shadow/backend/auth/dto/PasswordLoginRequest.java` — phone, password
@@ -63,14 +63,14 @@
   - 依赖: 无
   - 参考: api.md 中各接口的请求参数
 
-- [ ] **Task B9: 修改 Auth VO**
+- [x] **Task B9: 修改 Auth VO**
   - 文件:
     - `backend/src/main/java/com/shadow/backend/auth/dto/LoginResponse.java` — 修改为 accessToken, refreshToken, user
     - `backend/src/main/java/com/shadow/backend/auth/vo/RefreshTokenResponse.java` — 新增，包含 accessToken, refreshToken
   - 依赖: 无
   - 参考: api.md 中登录和刷新接口的响应格式
 
-- [ ] **Task B10: 修改 User DTO/VO**
+- [x] **Task B10: 修改 User DTO/VO**
   - 文件:
     - `backend/src/main/java/com/shadow/backend/user/vo/UserVO.java` — 新增 phone, avatar 字段
     - `backend/src/main/java/com/shadow/backend/user/dto/UpdateProfileRequest.java` — 新增，包含 nickname, email, avatar
@@ -80,7 +80,7 @@
 
 ### 阶段四：Service 层
 
-- [ ] **Task B11: 创建 SmsService（接口 + 实现）**
+- [x] **Task B11: 创建 SmsService（接口 + 实现）**
   - 文件:
     - `backend/src/main/java/com/shadow/backend/auth/service/SmsService.java`
     - `backend/src/main/java/com/shadow/backend/auth/service/impl/SmsServiceImpl.java`
@@ -90,13 +90,13 @@
   - 依赖: B2, B3, B5, B6
   - 参考: domain.md 中 Redis 数据结构
 
-- [ ] **Task B12: 创建 SmsSender 接口 + 日志实现**
+- [x] **Task B12: 创建 SmsSender 接口 + 日志实现**
   - 文件:
     - `backend/src/main/java/com/shadow/backend/auth/service/SmsSender.java` — 接口: `void send(String phone, String code)`
     - `backend/src/main/java/com/shadow/backend/auth/service/impl/LogSmsSender.java` — 实现接口，仅日志输出验证码（开发环境用）
   - 依赖: 无
 
-- [ ] **Task B13: 创建 TokenService（接口 + 实现）**
+- [x] **Task B13: 创建 TokenService（接口 + 实现）**
   - 文件:
     - `backend/src/main/java/com/shadow/backend/auth/service/TokenService.java`
     - `backend/src/main/java/com/shadow/backend/auth/service/impl/TokenServiceImpl.java`
@@ -107,7 +107,7 @@
   - 依赖: 无（使用 Sa-Token + Redis，已有依赖）
   - 参考: domain.md 中 Redis 数据结构
 
-- [ ] **Task B14: 重构 AuthService（接口 + 实现）**
+- [x] **Task B14: 重构 AuthService（接口 + 实现）**
   - 文件:
     - `backend/src/main/java/com/shadow/backend/auth/service/AuthService.java`
     - `backend/src/main/java/com/shadow/backend/auth/service/impl/AuthServiceImpl.java`
@@ -121,7 +121,7 @@
     - `void resetPassword(ResetPasswordRequest req)` — 验证验证码，按手机号查用户，更新密码
   - 依赖: B8, B9, B11, B13, B15
 
-- [ ] **Task B15: 修改 UserService（接口 + 实现）**
+- [x] **Task B15: 修改 UserService（接口 + 实现）**
   - 文件:
     - `backend/src/main/java/com/shadow/backend/user/service/UserService.java`
     - `backend/src/main/java/com/shadow/backend/user/service/impl/UserServiceImpl.java`
@@ -135,7 +135,7 @@
 
 ### 阶段五：Controller 层
 
-- [ ] **Task B16: 重构 AuthController**
+- [x] **Task B16: 重构 AuthController**
   - 文件: `backend/src/main/java/com/shadow/backend/auth/controller/AuthController.java`
   - 变更:
     - 移除旧 `/login` 端点
@@ -149,7 +149,7 @@
     - 新增 `POST /api/auth/reset-password` — 调用 AuthService.resetPassword
   - 依赖: B14
 
-- [ ] **Task B17: 扩展 UserController**
+- [x] **Task B17: 扩展 UserController**
   - 文件: `backend/src/main/java/com/shadow/backend/user/controller/UserController.java`
   - 变更:
     - 新增 `PUT /api/users/profile` — 调用 UserService.updateProfile（需登录）
@@ -158,7 +158,7 @@
 
 ### 阶段六：配置更新
 
-- [ ] **Task B18: 更新 SaTokenConfigure 免登录白名单**
+- [x] **Task B18: 更新 SaTokenConfigure 免登录白名单**
   - 文件: `backend/src/main/java/com/shadow/backend/common/config/SaTokenConfigure.java`
   - 变更: excludePathPatterns 更新为:
     - `/api/auth/login/password`
@@ -172,7 +172,7 @@
     - `/v3/api-docs/**`
   - 依赖: 无
 
-- [ ] **Task B19: 更新 application.yaml Sa-Token 配置**
+- [x] **Task B19: 更新 application.yaml Sa-Token 配置**
   - 文件: `backend/src/main/resources/application.yaml`
   - 变更: `sa-token.timeout` 从 `86400` 改为 `7200`（2 小时）
   - 依赖: 无
@@ -185,7 +185,7 @@
 
 ### 阶段一：模型与网络层
 
-- [ ] **Task F1: 创建 Auth 模型（Freezed）**
+- [x] **Task F1: 创建 Auth 模型（Freezed）**
   - 文件: `native_app/lib/features/auth/models/auth_models.dart`
   - 内容: 使用 Freezed + JsonSerializable 定义:
     - `LoginResponse` — accessToken, refreshToken, user (UserModel)
@@ -199,7 +199,7 @@
   - 依赖: 无
   - 注意: 创建后必须执行 `dart run build_runner build --delete-conflicting-outputs`
 
-- [ ] **Task F2: 创建 User 模型（Freezed）**
+- [x] **Task F2: 创建 User 模型（Freezed）**
   - 文件: `native_app/lib/features/user/models/user_model.dart`
   - 内容: 使用 Freezed + JsonSerializable 定义:
     - `UserModel` — id, phone, username, nickname, avatar, email, status, createTime, updateTime
@@ -208,7 +208,7 @@
   - 依赖: 无
   - 注意: 创建后必须执行 `dart run build_runner build --delete-conflicting-outputs`
 
-- [ ] **Task F3: 更新 ApiInterceptor Token 刷新逻辑**
+- [x] **Task F3: 更新 ApiInterceptor Token 刷新逻辑**
   - 文件: `native_app/lib/core/network/api_interceptor.dart`
   - 变更: `_refreshToken()` 方法中修改响应解析逻辑:
     - 从 `response.data['accessToken']` 改为 `response.data['data']['accessToken']`（适配 `Result<T>` 包装格式）
@@ -218,7 +218,7 @@
 
 ### 阶段二：数据源与仓库
 
-- [ ] **Task F4: 创建 Auth DataSource**
+- [x] **Task F4: 创建 Auth DataSource**
   - 文件: `native_app/lib/features/auth/datasources/auth_datasource.dart`
   - 内容: 封装所有认证相关 API 调用:
     - `sendCode(phone, scene)` → POST /api/auth/send-code
@@ -231,7 +231,7 @@
     - `resetPassword(phone, newPassword, code)` → POST /api/auth/reset-password
   - 依赖: F1
 
-- [ ] **Task F5: 创建 Auth Repository**
+- [x] **Task F5: 创建 Auth Repository**
   - 文件: `native_app/lib/features/auth/repositories/auth_repository.dart`
   - 内容: 抽象接口 `AuthRepository` + 实现 `AuthRepositoryImpl`
     - 接口方法对应 DataSource 所有方法
@@ -240,14 +240,14 @@
     - 退出登录后调用 `TokenManager.clearTokens()` 清除 Token
   - 依赖: F4
 
-- [ ] **Task F6: 创建 User DataSource**
+- [x] **Task F6: 创建 User DataSource**
   - 文件: `native_app/lib/features/user/datasources/user_datasource.dart`
   - 内容: 封装用户相关 API 调用:
     - `updateProfile(nickname?, email?, avatar?)` → PUT /api/users/profile
     - `changePassword(oldPassword, newPassword)` → PUT /api/users/password
   - 依赖: F2
 
-- [ ] **Task F7: 创建 User Repository**
+- [x] **Task F7: 创建 User Repository**
   - 文件: `native_app/lib/features/user/repositories/user_repository.dart`
   - 内容: 抽象接口 `UserRepository` + 实现 `UserRepositoryImpl`
     - `updateProfile(UpdateProfileRequest)` → 返回 UserModel
@@ -256,7 +256,7 @@
 
 ### 阶段三：状态管理
 
-- [ ] **Task F8: 创建 Auth Providers**
+- [x] **Task F8: 创建 Auth Providers**
   - 文件: `native_app/lib/features/auth/view_model/auth_provider.dart`
   - 内容: Riverpod Provider 集中定义:
     - `authDatasourceProvider` — Provider<AuthDatasource>
@@ -266,7 +266,7 @@
     - `resetPasswordViewModelProvider` — NotifierProvider<ResetPasswordViewModel, ResetPasswordState>
   - 依赖: F5
 
-- [ ] **Task F9: 创建 LoginViewModel**
+- [x] **Task F9: 创建 LoginViewModel**
   - 文件: `native_app/lib/features/auth/view_model/login_view_model.dart`
   - 内容: LoginState (Freezed) + LoginViewModel (Notifier):
     - `loginByPassword(phone, password)` — 调用 Repository，成功后更新登录状态
@@ -275,21 +275,21 @@
     - 倒计时定时器管理（60 秒）
   - 依赖: F8
 
-- [ ] **Task F10: 创建 RegisterViewModel**
+- [x] **Task F10: 创建 RegisterViewModel**
   - 文件: `native_app/lib/features/auth/view_model/register_view_model.dart`
   - 内容: RegisterState (Freezed) + RegisterViewModel (Notifier):
     - `register(phone, password, code, nickname?)` — 调用 Repository，成功后更新登录状态
     - `sendSmsCode(phone)` — 调用 Repository 发送验证码，启动倒计时
   - 依赖: F8
 
-- [ ] **Task F11: 创建 ResetPasswordViewModel**
+- [x] **Task F11: 创建 ResetPasswordViewModel**
   - 文件: `native_app/lib/features/auth/view_model/reset_password_view_model.dart`
   - 内容: ResetPasswordState (Freezed) + ResetPasswordViewModel (Notifier):
     - `resetPassword(phone, newPassword, code)` — 调用 Repository
     - `sendSmsCode(phone)` — 调用 Repository 发送验证码，启动倒计时
   - 依赖: F8
 
-- [ ] **Task F12: 创建 User Providers**
+- [x] **Task F12: 创建 User Providers**
   - 文件: `native_app/lib/features/user/view_model/user_provider.dart`
   - 内容: Riverpod Provider 集中定义:
     - `userDatasourceProvider` — Provider<UserDatasource>
@@ -298,7 +298,7 @@
     - `changePasswordViewModelProvider` — NotifierProvider<ChangePasswordViewModel, ChangePasswordState>
   - 依赖: F7
 
-- [ ] **Task F13: 创建 ProfileViewModel**
+- [x] **Task F13: 创建 ProfileViewModel**
   - 文件: `native_app/lib/features/user/view_model/profile_view_model.dart`
   - 内容: ProfileState (Freezed) + ProfileViewModel (AsyncNotifier):
     - `build()` — 初始化时调用 `GET /api/auth/me` 获取用户信息
@@ -306,7 +306,7 @@
     - `logout()` — 调用 Repository 退出登录，清除状态
   - 依赖: F12
 
-- [ ] **Task F14: 创建 ChangePasswordViewModel**
+- [x] **Task F14: 创建 ChangePasswordViewModel**
   - 文件: `native_app/lib/features/user/view_model/change_password_view_model.dart`
   - 内容: ChangePasswordState (Freezed) + ChangePasswordViewModel (Notifier):
     - `changePassword(oldPassword, newPassword)` — 调用 Repository
@@ -314,7 +314,7 @@
 
 ### 阶段四：可复用组件
 
-- [ ] **Task F15: 创建 SmsCodeInput 组件**
+- [x] **Task F15: 创建 SmsCodeInput 组件**
   - 文件: `native_app/lib/widgets/sms_code_input.dart`
   - 内容: StatefulWidget，包含:
     - 手机号输入（外部传入或内部 TextField）
@@ -326,34 +326,34 @@
 
 ### 阶段五：页面视图
 
-- [ ] **Task F16: 创建 LoginPage**
+- [x] **Task F16: 创建 LoginPage**
   - 文件: `native_app/lib/features/auth/view/login_page.dart`
   - 内容: 双 Tab 布局（密码登录 + 验证码登录），使用 SmsCodeInput 组件
   - 依赖: F9, F15
 
-- [ ] **Task F17: 创建 RegisterPage**
+- [x] **Task F17: 创建 RegisterPage**
   - 文件: `native_app/lib/features/auth/view/register_page.dart`
   - 内容: 注册表单（手机号 + 验证码 + 密码 + 确认密码 + 昵称），使用 SmsCodeInput 组件
   - 依赖: F10, F15
 
-- [ ] **Task F18: 创建 ResetPasswordPage**
+- [x] **Task F18: 创建 ResetPasswordPage**
   - 文件: `native_app/lib/features/auth/view/reset_password_page.dart`
   - 内容: 重置密码表单（手机号 + 验证码 + 新密码 + 确认新密码），使用 SmsCodeInput 组件
   - 依赖: F11, F15
 
-- [ ] **Task F19: 创建 ProfilePage**
+- [x] **Task F19: 创建 ProfilePage**
   - 文件: `native_app/lib/features/user/view/profile_page.dart`
   - 内容: 个人资料展示与编辑，退出登录入口
   - 依赖: F13
 
-- [ ] **Task F20: 创建 ChangePasswordPage**
+- [x] **Task F20: 创建 ChangePasswordPage**
   - 文件: `native_app/lib/features/user/view/change_password_page.dart`
   - 内容: 修改密码表单（原密码 + 新密码 + 确认新密码）
   - 依赖: F14
 
 ### 阶段六：路由注册
 
-- [ ] **Task F21: 更新路由配置**
+- [x] **Task F21: 更新路由配置**
   - 文件: `native_app/lib/core/router/app_router.dart`
   - 变更:
     - 新增路由路径: `/register`, `/reset-password`, `/profile`, `/profile/change-password`
@@ -364,7 +364,7 @@
 
 ### 阶段七：Provider 注册
 
-- [ ] **Task F22: 更新 ProviderScope 配置**
+- [x] **Task F22: 更新 ProviderScope 配置**
   - 文件: `native_app/lib/main.dart`
   - 变更: 确认 ProviderScope 包裹整个 App（Riverpod 3.x 默认全局可用，确认无需额外配置）
   - 依赖: F8, F12
